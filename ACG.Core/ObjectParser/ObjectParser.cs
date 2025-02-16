@@ -81,6 +81,8 @@ public static class ObjectParser
         
         model.Delta = model.Scale / 10.0f; 
         
+        model.TransformedVertices = new Vector4[model.SourceVertices.Count];
+        
         model.Min = min;
         model.Max = max;
     }
