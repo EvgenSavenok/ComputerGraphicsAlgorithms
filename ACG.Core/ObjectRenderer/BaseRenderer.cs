@@ -1,5 +1,4 @@
-﻿using System.Windows.Interop;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ACG.Core.Objects;
 
@@ -31,9 +30,6 @@ public static class BaseRenderer
                 default:
                     throw new NotSupportedException("Unsupported rendering type");
             }
-
-            if (scene.SelectedModel is not null)
-                WireframeRenderer.Draw3DSelectionHighlight(scene, scene.SelectedModel, wb, Colors.Aqua);
         }
     }
 }

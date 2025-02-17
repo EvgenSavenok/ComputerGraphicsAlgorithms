@@ -31,24 +31,29 @@
             </Menu>
         </DockPanel>
         
-        <StackPanel Grid.Row="1" Name="ImagePanel" Background="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <StackPanel Grid.Row="1" Name="ImagePanel" Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 
             <Image Focusable="True" Name="ImgDisplay" SnapsToDevicePixels="True"
                    Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
                    Source="{Binding WriteableBitmap}" Cursor="Hand">
                 <i:Interaction.Triggers>
+                    
                     <i:EventTrigger EventName="MouseWheel">
                         <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
+                    
                     <i:EventTrigger EventName="MouseMove">
                         <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
+                    
                     <i:EventTrigger EventName="MouseLeftButtonDown">
                         <i:InvokeCommandAction Command="{Binding MouseLeftButtonDownCommand}" PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
+                    
                     <i:EventTrigger EventName="KeyDown">
                         <i:InvokeCommandAction Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
+                    
                 </i:Interaction.Triggers>
             </Image>
             

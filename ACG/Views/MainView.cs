@@ -8,9 +8,8 @@ using ACG.Core.ObjectParser;
 using ACG.Core.ObjectRenderer;
 using ACG.Core.Objects;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.Forms.MessageBox;
-using Vector = System.Numerics.Vector;
+using Vector = System.Windows.Vector;
 
 namespace ACG.Views;
 
@@ -18,7 +17,7 @@ public class MainView : INotifyPropertyChanged
 {
     public Scene Scene { get; set; } = new ();
     
-    private Color _backgroundColor = Colors.Black;
+    private Color _backgroundColor = Colors.White;
 
     public Color BackgroundColor
     {
@@ -31,7 +30,7 @@ public class MainView : INotifyPropertyChanged
         }
     }
     
-    private Color _foregroundColor = Colors.White;
+    private Color _foregroundColor = Colors.Purple;
 
     public Color ForegroundColor
     {
@@ -45,6 +44,10 @@ public class MainView : INotifyPropertyChanged
     }
     
     private Point _lastMousePos;
+    
+    private bool _isRightMousePressed = false;
+    
+    private float RotateSensitivity => MathF.PI / 360.0f;
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
@@ -84,8 +87,9 @@ public class MainView : INotifyPropertyChanged
     
     public ICommand MouseMoveCommand { get; }
     
+    // Изменение камеры
     public ICommand KeyDownCommand { get; }
-
+    
     public MainView()
     {
         Scene.Camera = new Camera();
@@ -98,10 +102,49 @@ public class MainView : INotifyPropertyChanged
         
         MouseWheelCommand = new Command(OnMouseWheel);
         MouseLeftButtonDownCommand = new Command(OnMouseLeftButtonDown);
-        //MouseMoveCommand = new Command(OnMouseMove);
-        //KeyDownCommand = new Command(OnKeyDown);
+        MouseMoveCommand = new Command(OnMouseMove);
+        KeyDownCommand = new Command(OnKeyDown);
         
         SelectedRenderingType = RenderingType.Wireframe;
+    }
+    
+    private void OnKeyDown(object? parameter)
+    {
+        if (parameter is KeyEventArgs e)
+        {
+            if (Scene.SelectedModel != null)
+            {
+                HandleModelKeyPress(e);
+            }
+
+            UpdateView();
+            OnPropertyChanged(nameof(Scene));
+        }
+    }
+
+    private void HandleModelKeyPress(KeyEventArgs e)
+    {
+        var step = Scene.SelectedModel!.GetOptimalTranslationStep();
+        MoveModel(e.Key, step);
+    }
+    
+    private void MoveModel(Key key, Vector3 step)
+    {
+        switch (key)
+        {
+            case Key.D:
+                Scene.SelectedModel!.Translation += new Vector3(step.X, 0, 0);
+                break;
+            case Key.A:
+                Scene.SelectedModel!.Translation += new Vector3(-step.X, 0, 0);
+                break;
+            case Key.W:
+                Scene.SelectedModel!.Translation += new Vector3(0, step.Y, 0);
+                break;
+            case Key.S:
+                Scene.SelectedModel!.Translation += new Vector3(0, -step.Y, 0);
+                break;
+        }
     }
     
     private void OnMouseLeftButtonDown(object? parameter)
@@ -115,6 +158,42 @@ public class MainView : INotifyPropertyChanged
                 uiElement.Focus();
             }
         }
+    }
+    
+    private void OnMouseMove(object? parameter)
+    {
+        if (parameter is MouseEventArgs e)
+        {
+            if (Scene.SelectedModel != null)
+            {
+                HandleModelRotation(e);
+            }
+        }
+    }
+    
+    private void HandleModelRotation(MouseEventArgs e)
+    {
+        Point currentPos = e.GetPosition(null);
+        Vector delta = currentPos - _lastMousePos;
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            RotateModelAroundItsAxis(delta);
+
+            _lastMousePos = currentPos;
+            UpdateView();
+            OnPropertyChanged(nameof(Scene));
+        }
+    }
+    
+    private void RotateModelAroundItsAxis(Vector delta)
+    {
+        if (Scene.SelectedModel == null) 
+            return;
+
+        Scene.SelectedModel.Rotation = new Vector3(
+            Scene.SelectedModel.Rotation.X,
+            Scene.SelectedModel.Rotation.Y + (float)delta.X * RotateSensitivity,
+            Scene.SelectedModel.Rotation.Z);
     }
      
     private void OnMouseWheel(object? parameter)
@@ -144,7 +223,6 @@ public class MainView : INotifyPropertyChanged
             OnPropertyChanged(nameof(Scene));
         }
     }
-     
     
     private void ClearScene()
     {
