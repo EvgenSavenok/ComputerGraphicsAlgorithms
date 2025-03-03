@@ -7,7 +7,7 @@ namespace ACG.Core.ObjectParser;
 
 public static class ObjectParser
 {
-   public static ObjectModel Parse(string filePath)
+   public static ObjectModel Parse(string filePath, Camera camera)
     {
         var model = new ObjectModel();
         var culture = CultureInfo.InvariantCulture;
@@ -29,11 +29,17 @@ public static class ObjectParser
                 case "v":
                     ParseVertex(tokens, model, ref min, ref max, culture);
                     break;
+                
                 case "f":
-                    ParseFace(tokens, model);
+                    ParseFace(tokens, model, camera);
+                    break;
+                
+                case "vn":
+                    ParseNormal(tokens, model, culture);
                     break;
             }
         }
+        
         ComputeBoundingBox(model, min, max); 
         
         return model;
@@ -57,7 +63,7 @@ public static class ObjectParser
         max = Vector4.Max(max, vertex);
     }
 
-    private static void ParseFace(string[] tokens, ObjectModel model)
+    private static void ParseFace(string[] tokens, ObjectModel model, Camera camera)
     {
         var face = new Face();
         
@@ -85,5 +91,15 @@ public static class ObjectParser
         
         model.Min = min;
         model.Max = max;
+    }
+    
+    private static void ParseNormal(string[] tokens, ObjectModel model, CultureInfo culture)
+    {
+        float i = float.Parse(tokens[1], culture);
+        float j = float.Parse(tokens[2], culture);
+        float k = float.Parse(tokens[3], culture);
+
+        Vector3 normal = new(i, j, k);
+        model.Normals.Add(normal);
     }
 }

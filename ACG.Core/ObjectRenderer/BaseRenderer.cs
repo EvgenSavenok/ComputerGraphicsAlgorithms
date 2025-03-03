@@ -16,6 +16,7 @@ public static class BaseRenderer
         if (wb != null)
         {
             WireframeRenderer.ClearBitmap(wb, backgroundColor);
+            
             scene.Camera.ChangeEye();
             scene.UpdateAllModels();
 
@@ -27,6 +28,15 @@ public static class BaseRenderer
                         WireframeRenderer.DrawWireframe(model, wb, foregroundColor, scene.Camera);
                     }
                     break;
+                
+                case RenderingType.Rasterized:
+                    RasterizedRenderer.ClearZBuffer(scene.CanvasWidth, scene.CanvasHeight, scene.Camera);
+                    foreach (var model in scene.Models)
+                    {
+                        RasterizedRenderer.DrawTriangles(model, wb, foregroundColor, scene.Camera);
+                    }
+                    break;
+                
                 default:
                     throw new NotSupportedException("Unsupported rendering type");
             }

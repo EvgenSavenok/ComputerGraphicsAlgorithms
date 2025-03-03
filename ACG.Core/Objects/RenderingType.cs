@@ -2,5 +2,6 @@
 
 public enum RenderingType
 {
-    Wireframe
+    Wireframe,
+    Rasterized
 }

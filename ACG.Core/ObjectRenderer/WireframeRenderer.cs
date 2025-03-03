@@ -46,13 +46,10 @@ public static class WireframeRenderer
     {
         int count = face.Vertices.Count;
         if (count < 2) 
-            // У каждой поверхности должна быть хотя бы одна вершина
             return;
-
-        // Проходимся по всем вершинам грани
+        
         for (int i = 0; i < count; i++)
         {
-            // Индексы вершин в OBJ файлах начинаются с 1, поэтому из индекса каждой вершины вычитается 1
             int index1 = face.Vertices[i].VertexIndex - 1;
             int index2 = face.Vertices[(i + 1) % count].VertexIndex - 1;
 
@@ -62,7 +59,6 @@ public static class WireframeRenderer
             var (x0, y0, z0) = GetScreenCoordinates(model, index1);
             var (x1, y1, z1) = GetScreenCoordinates(model, index2);
 
-            // Проверяем, выходит ли вершина за рамки экрана или камеры, чтобы не отрисовывать
             if (IsOutsideScreen(x0, y0, x1, y1, width, height) 
                 || IsOutsideCameraView(z0, z1, camera))
                 continue;
@@ -81,7 +77,7 @@ public static class WireframeRenderer
     {
         var vertex = model.TransformedVertices[index];
         // Мы здесь все округляем, потому что нужно представить координаты как пиксели
-        // А пискели не могут быть дробными
+        // А пикcели не могут быть дробными
         // Z оставляем как есть, потому что это - глубина, а она может быть любой
         return ((int)Math.Round(vertex.X), (int)Math.Round(vertex.Y), vertex.Z);
     }
@@ -179,5 +175,4 @@ public static class WireframeRenderer
             wb.Unlock();
         }
     }
-
 }

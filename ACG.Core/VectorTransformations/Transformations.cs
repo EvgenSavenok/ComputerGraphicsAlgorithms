@@ -4,24 +4,12 @@ namespace ACG.Core.VectorTransformations;
 
 public static class Transformations
 {
-    // up - для того, чтобы показать, где находится ось Y в камере
-    // Чтобы оси в ней не перепутались местами
-    // В этом методе мы камеру помещаем в центр сцены, а все остальные объекты - перестраиваем под камеру
     public static Matrix4x4 CreateViewMatrix(Vector3 eye, Vector3 target, Vector3 up)
     {
-        // Нормализовать вектор - это сделать его длину равной 1
-        // Здесь мы нормализуем каждую ось камеры, чтобы не было искажений в пространстве
-        // То есть, по факту, делаем каждую ось одинаковой длины, равной 1
         var zAxis = Vector3.Normalize(eye - target);  
-        // Cross - векторное произведение
-        // Через Cross мы получаем x, который перпендикулярен up и z 
-        // z смотрит в eye, up - вверх
-        // То есть x будет смотреть вправо относительно камеры 
-        // Вправо - потому что есть правило правой руки при перемножении двух векторов
         var xAxis = Vector3.Normalize(Vector3.Cross(up, zAxis)); 
         var yAxis = Vector3.Cross(zAxis, xAxis);
 
-        // Получаем сдвиги каждого объекта относительно камеры на сцене, чтобы поместить их вокруг неё
         float tx = -Vector3.Dot(xAxis, eye);
         float ty = -Vector3.Dot(yAxis, eye);
         float tz = -Vector3.Dot(zAxis, eye);
@@ -31,10 +19,7 @@ public static class Transformations
             yAxis.X, yAxis.Y, yAxis.Z, ty,
             zAxis.X, zAxis.Y, zAxis.Z, tz,
             0.0f,    0.0f,    0.0f,    1.0f);
-
-        // Транспонируем матрицу, потому что есть два порядка - столбцовый и строчный
-        // Нам нужен строчный, а работали со столбцовым
-        // Поэтому нужно преобразовать
+        
         view = Matrix4x4.Transpose(view);
 
         return view;
@@ -44,9 +29,6 @@ public static class Transformations
     // fov - угол, показывающий, насколько широко камера может видеть
     // znear - минимальная дальность, на которой камера видит объекты
     // zfar - максимальная дальность видимости
-    // Тут мы создаем переспективную матрицу, которая может преобразовать 3D в 2D
-    // Она нужна, чтобы можно было рендерить объекты как в реальном мире, с учетом перспективы:
-    // Чем дальше ты от камеры, тем ты меньше
     public static Matrix4x4 CreatePerspectiveProjection(
         float fov, 
         float aspect, 
@@ -56,15 +38,10 @@ public static class Transformations
         float tanHalfFov = MathF.Tan(fov / 2);
         // Далее мы делим, потому что нужно получить число от 0 до 1
         // Мы все эти оси нормировали (см. метод CreateViewMatrix), и их длины равны 1 
-        // Масштабирование по оси X
         float m00 = 1 / (aspect * tanHalfFov);
-        // Масштабирование по оси Y
-        // Тут без aspect, потому что его уже учли в X
         float m11 = 1 / tanHalfFov;
-        // Масштабирование по оси Z 
         float m22 = zfar / (znear - zfar);
-        // Тут вычисляется глубина для объекта в перспективе
-        // Про эту формулку еще Оношко рассказывал на ассемблере, хех
+        // Глубина объекта в перспективе
         float m32 = (znear * zfar) / (znear - zfar);
 
         var perspective = new Matrix4x4(
@@ -79,12 +56,9 @@ public static class Transformations
         return perspective;
     }
     
-    // Рассчитываем область видимости
     public static Matrix4x4 CreateViewportMatrix(
         float width,
         float height, 
-        // Смещение начала области видимости по осям X и Y (тут по нулям, потому что начинам 
-        // с пикселя в левом верхнем углу
         float xMin = 0.0f,
         float yMin = 0.0f)
     {

@@ -8,6 +8,8 @@ public class ObjectModel
     private float _scale;
     public List<Vector4> SourceVertices { get; } = [];
     
+    public List<Vector3> Normals { get; } = [];
+    
     public Vector4[] TransformedVertices { get; set; } = [];
     
     public Vector3 Translation { get; set; } = Vector3.Zero;
@@ -32,13 +34,10 @@ public class ObjectModel
         }
     }
     
-    // Тут мы преобразовываем вершины модели через матрицу finalTransform
     public void ApplyFinalTransformation(Matrix4x4 finalTransform, Camera camera)
     {
-        // Вершины, которые были изначально (до трансформации)
         int count = SourceVertices.Count;
         
-        // Это для ускорения процесса
         Parallel.For(0, count, i =>
         {
             // Тут вектор умножается на матрицу

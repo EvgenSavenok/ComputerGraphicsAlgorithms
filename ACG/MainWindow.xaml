@@ -15,19 +15,28 @@
     
     <Grid>
         <Grid.RowDefinitions>
+            
             <RowDefinition Height="18"/>
             <RowDefinition Height="*"/>
+            
         </Grid.RowDefinitions>
         
         <DockPanel xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
             <Menu DockPanel.Dock="Top" Background="LightGray">
+                
                 <MenuItem Header="File">
                     <MenuItem Header="Open .obj file" Command="{Binding LoadFileCommand}"/>
                 </MenuItem>
+                
                 <MenuItem Header="Clear scene" Command="{Binding ClearSceneCommand}"/>
+                
                 <MenuItem Header="Rendering mode">
-                    <MenuItem Header="Wireframe" CommandParameter="{x:Static objects:RenderingType.Wireframe}"/>
+                    <MenuItem Header="Wireframe" CommandParameter="{x:Static objects:RenderingType.Wireframe}" 
+                              Command="{Binding ChangeRenderingModeCommand}"/>
+                    <MenuItem Header="Rasterized" CommandParameter="{x:Static objects:RenderingType.Rasterized}" 
+                              Command="{Binding ChangeRenderingModeCommand}"/>
                 </MenuItem>
+                
             </Menu>
         </DockPanel>
         

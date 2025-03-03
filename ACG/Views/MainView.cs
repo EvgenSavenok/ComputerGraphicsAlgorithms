@@ -80,6 +80,8 @@ public class MainView : INotifyPropertyChanged
     
     public ICommand ClearSceneCommand { get; }
     
+    public ICommand ChangeRenderingModeCommand { get; }
+    
     // Изменение модели
     public ICommand MouseWheelCommand { get; }
     
@@ -105,7 +107,13 @@ public class MainView : INotifyPropertyChanged
         MouseMoveCommand = new Command(OnMouseMove);
         KeyDownCommand = new Command(OnKeyDown);
         
-        SelectedRenderingType = RenderingType.Wireframe;
+        ChangeRenderingModeCommand = new Command(param =>
+        {
+            if (param is RenderingType mode)
+            {
+                SelectedRenderingType = mode;
+            }
+        });
     }
     
     private void OnKeyDown(object? parameter)
@@ -175,6 +183,7 @@ public class MainView : INotifyPropertyChanged
     {
         Point currentPos = e.GetPosition(null);
         Vector delta = currentPos - _lastMousePos;
+        
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             RotateModelAroundItsAxis(delta);
@@ -242,7 +251,7 @@ public class MainView : INotifyPropertyChanged
         {
             try
             {
-                var loadedModel = ObjectParser.Parse(dlg.FileName!);
+                var loadedModel = ObjectParser.Parse(dlg.FileName!, Scene.Camera);
                 WriteableBitmap ??= new WriteableBitmap(
                     Scene.CanvasWidth, Scene.CanvasHeight, 96, 96, PixelFormats.Bgra32, null);
 

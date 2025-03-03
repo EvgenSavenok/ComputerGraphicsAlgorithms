@@ -22,9 +22,9 @@ public class Scene
     {
         // Из мировых координат - в координаты вида камеры
         var view = Camera.GetViewMatrix();
-        // Из 3D в 2D
+        // Из 3D в нормализованные координаты (где диапазон от -1 до 1)
         var projection = Camera.GetProjectionMatrix();
-        // Из координат - в экранные пиксели
+        // Из координат - в экранные пиксели (в пространство окна просмотра)
         var viewport = GetViewportMatrix();
     
         foreach (var model in Models)
@@ -33,8 +33,6 @@ public class Scene
         }
     }
     
-    // Сюда мы передаем все три матрицы, которые создали до этого, чтобы
-    // вместе с мировой матрицей (которую тут посчитаем) рассчитать новое положение объекта
     private void UpdateModelTransform(
         ObjectModel model, 
         Matrix4x4 view, 
@@ -42,7 +40,6 @@ public class Scene
         Matrix4x4 viewport)
     {
         var world = Transformations.CreateWorldTransform(
-            // Размер модели относительно её оригинала
             model.Scale,
             // Показывает ориентацию матрицы в пространстве
             // Поворот вокруг оси Y называется Yaw, вокруг X — Pitch, вокруг Z — Roll
@@ -52,10 +49,7 @@ public class Scene
                 model.Rotation.Z),
             // Перемещение модели в пространстве
             model.Translation);
-
-        // Порядок перемножения важен!
-        // Сначала мировая трансформация, затем камера, затем проекция,
-        // затем преобразование в координаты экрана
+        
         var finalTransform = world * view * projection * viewport;
         model.ApplyFinalTransformation(finalTransform, Camera);
     }
